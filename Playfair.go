@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -122,15 +121,6 @@ func decode(keyword, text string) string {
 	return result
 }
 
-func updateMatrixGrid(matrix [5][5]rune, grid *fyne.Container, labels [][]*widget.Label) {
-	for i := 0; i < 5; i++ {
-		for j := 0; j < 5; j++ {
-			labels[i][j].SetText(string(matrix[i][j]))
-		}
-	}
-	grid.Refresh()
-}
-
 func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Шифр Плейфера")
@@ -143,30 +133,6 @@ func main() {
 
 	resultEntry := widget.NewMultiLineEntry()
 	resultEntry.Disable()
-
-	matrix := prepareMatrix("")
-	matrixLabels := make([][]*widget.Label, 5)
-	for i := range matrixLabels {
-		matrixLabels[i] = make([]*widget.Label, 5)
-		for j := range matrixLabels[i] {
-			matrixLabels[i][j] = widget.NewLabel(" ")
-			matrixLabels[i][j].Alignment = fyne.TextAlignCenter
-		}
-	}
-
-	matrixGrid := container.New(layout.NewGridLayout(5))
-	for i := 0; i < 5; i++ {
-		for j := 0; j < 5; j++ {
-			matrixGrid.Add(matrixLabels[i][j])
-		}
-	}
-
-	updateMatrixGrid(matrix, matrixGrid, matrixLabels)
-
-	keyEntry.OnChanged = func(text string) {
-		m := prepareMatrix(text)
-		updateMatrixGrid(m, matrixGrid, matrixLabels)
-	}
 
 	encryptButton := widget.NewButton("Зашифровать", func() {
 		key := keyEntry.Text
@@ -186,13 +152,12 @@ func main() {
 
 	content := container.NewVBox(
 		keyEntry,
-		matrixGrid,
 		textEntry,
 		buttons,
 		resultEntry,
 	)
 
-	myWindow.SetContent(container.NewVScroll(content))
-	myWindow.Resize(fyne.NewSize(420, 500))
+	myWindow.SetContent(content)
+	myWindow.Resize(fyne.NewSize(400, 300))
 	myWindow.ShowAndRun()
 }
