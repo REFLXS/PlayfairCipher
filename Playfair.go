@@ -9,22 +9,22 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func prepareMatrix(keyword string) [5][5]rune {
-	alphabet := []rune("ABCDEFGHIJKLMNOPRSTUVWXYZ")
+func prepareMatrix(kw string) [5][5]rune {
+	ltrs := []rune("ABCDEFGHIJKLMNOPRSTUVWXYZ")
 	seen := make(map[rune]bool)
-	matrix := [5][5]rune{}
+	mtx := [5][5]rune{}
 
-	keyword = strings.ToUpper(keyword)
-	cleanKey := ""
-	for _, ch := range keyword {
-		if !seen[ch] && strings.ContainsRune(string(alphabet), ch) {
-			cleanKey += string(ch)
+	kw = strings.ToUpper(kw)
+	ck := ""
+	for _, ch := range kw {
+		if !seen[ch] && strings.ContainsRune(string(ltrs), ch) {
+			ck += string(ch)
 			seen[ch] = true
 		}
 	}
-	for _, ch := range alphabet {
+	for _, ch := range ltrs {
 		if !seen[ch] {
-			cleanKey += string(ch)
+			ck += string(ch)
 			seen[ch] = true
 		}
 	}
@@ -32,17 +32,17 @@ func prepareMatrix(keyword string) [5][5]rune {
 	k := 0
 	for i := 0; i < 5; i++ {
 		for j := 0; j < 5; j++ {
-			matrix[i][j] = rune(cleanKey[k])
+			mtx[i][j] = rune(ck[k])
 			k++
 		}
 	}
-	return matrix
+	return mtx
 }
 
-func findPos(matrix [5][5]rune, ch rune) (int, int) {
+func findPos(mtx [5][5]rune, ch rune) (int, int) {
 	for i := 0; i < 5; i++ {
 		for j := 0; j < 5; j++ {
-			if matrix[i][j] == ch {
+			if mtx[i][j] == ch {
 				return i, j
 			}
 		}
@@ -52,14 +52,14 @@ func findPos(matrix [5][5]rune, ch rune) (int, int) {
 
 func makePairs(text string) []string {
 	text = strings.ToUpper(strings.ReplaceAll(text, " ", ""))
-	pairs := []string{}
-	runes := []rune(text)
+	ps := []string{}
+	rs := []rune(text)
 
-	for i := 0; i < len(runes); i++ {
-		a := runes[i]
+	for i := 0; i < len(rs); i++ {
+		a := rs[i]
 		var b rune
-		if i+1 < len(runes) {
-			b = runes[i+1]
+		if i+1 < len(rs) {
+			b = rs[i+1]
 			if a == b {
 				b = 'X'
 			} else {
@@ -68,96 +68,97 @@ func makePairs(text string) []string {
 		} else {
 			b = 'X'
 		}
-		pairs = append(pairs, string([]rune{a, b}))
+		ps = append(ps, string([]rune{a, b}))
 	}
-	return pairs
+	return ps
 }
 
-func encode(keyword, text string) string {
-	matrix := prepareMatrix(keyword)
-	pairs := makePairs(text)
-	result := ""
+func encode(kw, text string) string {
+	mtx := prepareMatrix(kw)
+	ps := makePairs(text)
+	res := ""
 
-	for _, pair := range pairs {
-		a, b := rune(pair[0]), rune(pair[1])
-		r1, c1 := findPos(matrix, a)
-		r2, c2 := findPos(matrix, b)
+	for _, p := range ps {
+		a, b := rune(p[0]), rune(p[1])
+		r1, c1 := findPos(mtx, a)
+		r2, c2 := findPos(mtx, b)
 
 		if r1 == r2 {
-			result += string(matrix[r1][(c1+1)%5])
-			result += string(matrix[r2][(c2+1)%5])
+			res += string(mtx[r1][(c1+1)%5])
+			res += string(mtx[r2][(c2+1)%5])
 		} else if c1 == c2 {
-			result += string(matrix[(r1+1)%5][c1])
-			result += string(matrix[(r2+1)%5][c2])
+			res += string(mtx[(r1+1)%5][c1])
+			res += string(mtx[(r2+1)%5][c2])
 		} else {
-			result += string(matrix[r1][c2])
-			result += string(matrix[r2][c1])
+			res += string(mtx[r1][c2])
+			res += string(mtx[r2][c1])
 		}
 	}
-	return result
+	return res
 }
 
-func decode(keyword, text string) string {
-	matrix := prepareMatrix(keyword)
-	pairs := makePairs(text)
-	result := ""
+func decode(kw, text string) string {
+	mtx := prepareMatrix(kw)
+	ps := makePairs(text)
+	res := ""
 
-	for _, pair := range pairs {
+	for _, pair := range ps {
 		a, b := rune(pair[0]), rune(pair[1])
-		r1, c1 := findPos(matrix, a)
-		r2, c2 := findPos(matrix, b)
+		r1, c1 := findPos(mtx, a)
+		r2, c2 := findPos(mtx, b)
 
 		if r1 == r2 {
-			result += string(matrix[r1][(c1+4)%5])
-			result += string(matrix[r2][(c2+4)%5])
+			res += string(mtx[r1][(c1+4)%5])
+			res += string(mtx[r2][(c2+4)%5])
 		} else if c1 == c2 {
-			result += string(matrix[(r1+4)%5][c1])
-			result += string(matrix[(r2+4)%5][c2])
+			res += string(mtx[(r1+4)%5][c1])
+			res += string(mtx[(r2+4)%5][c2])
 		} else {
-			result += string(matrix[r1][c2])
-			result += string(matrix[r2][c1])
+			res += string(mtx[r1][c2])
+			res += string(mtx[r2][c1])
 		}
 	}
-	return result
+	return res
 }
 
 func main() {
-	myApp := app.New()
-	myWindow := myApp.NewWindow("Шифр Плейфера")
+	a := app.New()
+	w := a.NewWindow("Шифр Плейфера")
 
-	keyEntry := widget.NewEntry()
-	keyEntry.SetPlaceHolder("Ключевое слово")
+	key := widget.NewEntry()
+	key.SetPlaceHolder("Ключевое слово")
 
-	textEntry := widget.NewMultiLineEntry()
-	textEntry.SetPlaceHolder("Введите текст")
+	input := widget.NewMultiLineEntry()
+	input.SetPlaceHolder("Введите текст")
 
-	resultEntry := widget.NewMultiLineEntry()
-	resultEntry.Disable()
+	output := widget.NewMultiLineEntry()
+	output.SetPlaceHolder("Результат")
+	output.Disable()
 
 	encryptButton := widget.NewButton("Зашифровать", func() {
-		key := keyEntry.Text
-		txt := textEntry.Text
+		key := key.Text
+		txt := input.Text
 		res := encode(key, txt)
-		resultEntry.SetText(res)
+		output.SetText(res)
 	})
 
 	decryptButton := widget.NewButton("Расшифровать", func() {
-		key := keyEntry.Text
-		txt := textEntry.Text
+		key := key.Text
+		txt := input.Text
 		res := decode(key, txt)
-		resultEntry.SetText(res)
+		output.SetText(res)
 	})
 
 	buttons := container.NewHBox(encryptButton, decryptButton)
 
 	content := container.NewVBox(
-		keyEntry,
-		textEntry,
+		key,
+		input,
 		buttons,
-		resultEntry,
+		output,
 	)
 
-	myWindow.SetContent(content)
-	myWindow.Resize(fyne.NewSize(400, 300))
-	myWindow.ShowAndRun()
+	w.SetContent(content)
+	w.Resize(fyne.NewSize(400, 300))
+	w.ShowAndRun()
 }
